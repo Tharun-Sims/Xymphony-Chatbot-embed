@@ -1,15 +1,15 @@
-import { createRoot } from "react-dom/client";
+import * as ReactDOM from "react-dom";
 import { ChatbotConfig } from "../types/chatbot";
 import ChatWidget from "../components/ChatWidget";
+import chatbotStyles from "../index.css?inline";
+import { createRoot } from "react-dom/client";
 
 class Chatbot {
   private static instance: Chatbot | null = null;
   private config: ChatbotConfig | null = null;
   private container: HTMLElement | null = null;
 
-  private constructor() {
-    // Singleton pattern
-  }
+  private constructor() {}
 
   public static getInstance(): Chatbot {
     if (!Chatbot.instance) {
@@ -34,15 +34,25 @@ class Chatbot {
       ...config,
     };
 
-    // Create container if it doesn't exist
     if (!this.container) {
       this.container = document.createElement("div");
       this.container.id = "chatbot-container";
       document.body.appendChild(this.container);
     }
+    // 🔒 Create Shadow DOM
+    const shadow = this.container.attachShadow({ mode: "open" });
 
-    // Render the chatbot UI
-    const root = createRoot(this.container);
+    // 🧵 Inject CSS
+    const style = document.createElement("style");
+    style.textContent = chatbotStyles;
+    shadow.appendChild(style);
+
+    // 🪝 Create app mount point
+    const mount = document.createElement("div");
+    shadow.appendChild(mount);
+
+    // 🚀 Render Chatbot
+    const root = createRoot(mount);
     root.render(<ChatWidget config={this.config} />);
   }
 }

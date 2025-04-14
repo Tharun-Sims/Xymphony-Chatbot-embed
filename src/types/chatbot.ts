@@ -1,8 +1,7 @@
-
 export interface ChatbotConfig {
-  chatflowid: string;
+  agent_id: string;
   apiHost: string;
-  position?: 'left' | 'right';
+  position?: "left" | "right";
   primaryColor?: string;
   textColor?: string;
   bubbleColor?: string;
@@ -14,13 +13,22 @@ export interface ChatbotConfig {
   avatarUrl?: string;
   height?: string;
   width?: string;
+  enableAudioRecording?: boolean;
 }
 
 export interface Message {
   id: string;
-  content: string;
+  content: string | File | Blob;
+  contentType: 'text' | 'image' | 'document' | 'audio';
   role: 'user' | 'assistant';
   timestamp: Date;
+  fileName?: string;
+  fileUrl?: string;
+  files?: Array<{
+    file: File;
+    type: 'image' | 'document';
+    name: string;
+  }>;
 }
 
 export interface ChatbotState {

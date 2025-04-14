@@ -14,7 +14,7 @@ import Chatbot from "../lib/chatbot-embed";
 const Index = () => {
   const handleInitChatbot = () => {
     Chatbot.init({
-      chatflowid: "demo-chatflow-123",
+      agent_id: "demo-chatflow-123",
       apiHost: "https://api.example.com",
       primaryColor: "#4F46E5",
       title: "AI Assistant",
@@ -26,7 +26,7 @@ const Index = () => {
   import Chatbot from 'https://cdn.jsdelivr.net/npm/chatbot-embed/dist/index.js';
   
   Chatbot.init({
-    chatflowid: 'YOUR_CHATFLOW_ID',
+    agent_id: 'YOUR_CHATFLOW_ID',
     apiHost: 'https://chatbot-embed-server.com',
     
     // Optional configuration
@@ -51,7 +51,7 @@ const Index = () => {
 // In your component
 useEffect(() => {
   Chatbot.init({
-    chatflowid: 'YOUR_CHATFLOW_ID',
+    agent_id: 'YOUR_CHATFLOW_ID',
     apiHost: 'https://chatbot-embed-server.com',
     // ... other options
   });
