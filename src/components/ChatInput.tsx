@@ -3,6 +3,7 @@ import { Send, Paperclip, Mic, StopCircle, X } from 'lucide-react';
 
 interface ChatInputProps {
   onSendMessage: (message: string, files: File[]) => void;
+  onSendFile: (file: File) => void;
   onSendAudio: (audioBlob: Blob) => void;
   disabled: boolean;
   primaryColor?: string;

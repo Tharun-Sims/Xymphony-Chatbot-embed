@@ -1,5 +1,4 @@
 export interface ChatbotConfig {
-  agent_id: string;
   apiHost: string;
   position?: "left" | "right";
   primaryColor?: string;

@@ -61,7 +61,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
       const agentData = {
         query: content,
         stream: false,
-        new_session: messages.length === 1
+        new_session: messages.length === 0 // true for first message, false otherwise
       };
       formData.append('agent_data', JSON.stringify(agentData));
       
@@ -112,7 +112,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
   const sendFile = async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('agent_id', config.agent_id);
 
     const userMessage: Message = {
       id: uuidv4(),
@@ -154,7 +153,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
   const sendAudio = async (audioBlob: Blob) => {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'recording.wav');
-    formData.append('agent_id', config.agent_id);
 
     const userMessage: Message = {
       id: uuidv4(),

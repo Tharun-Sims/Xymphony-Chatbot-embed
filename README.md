@@ -35,8 +35,7 @@ Add the following script tag to your HTML file:
   
   Chatbot.init({
     // Required parameters
-    agent_id: 'YOUR_CHATFLOW_ID',
-    apiHost: 'https://your-api-host.com',
+    apiHost: 'https://your-api-host.com/agent_id',
     
     // Optional parameters
     position: 'right',           // 'left' or 'right'
@@ -60,7 +59,6 @@ Add the following script tag to your HTML file:
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `agent_id` | string | - | **Required**. Your Xymphony AI agent ID |
 | `apiHost` | string | - | **Required**. Your API host URL |
 | `position` | 'left' \| 'right' | 'right' | Position of the chat widget |
 | `primaryColor` | string | '#4F46E5' | Main color for the chat widget |
