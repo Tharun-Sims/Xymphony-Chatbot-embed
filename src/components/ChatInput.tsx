@@ -120,13 +120,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
       <div className="flex items-center rounded-lg border border-gray-300 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-opacity-40" 
            style={{ backgroundColor: 'white', boxShadow: 'none' }}>
-        <input
-          type="text"
+        <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={placeholderText}
           disabled={disabled}
-          className="flex-1 px-4 py-2 outline-none text-gray-700 placeholder-gray-400 bg-transparent"
+          className="flex-1 px-4 py-2 outline-none text-gray-700 placeholder-gray-400 bg-transparent resize-none min-h-[40px] max-h-[80px] overflow-y-auto"
+          rows={1}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit(e);
+            }
+          }}
+          onInput={(e) => {
+            const target = e.target as HTMLTextAreaElement;
+            target.style.height = 'auto';
+            target.style.height = `${target.scrollHeight}px`;
+          }}
         />
         
         <input

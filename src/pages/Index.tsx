@@ -14,10 +14,18 @@ import Chatbot from "../lib/chatbot-embed";
 const Index = () => {
   const handleInitChatbot = () => {
     Chatbot.init({
-      apiHost: "https://api.example.com",
+      apiHost: window.location.hostname === 'localhost' 
+        ? 'http://localhost:3000'
+        : 'https://your-production-api.com',
       primaryColor: "#4F46E5",
       title: "AI Assistant",
       subtitle: "Demo Version",
+      welcomeMessage: "👋 Hi! I'm your AI assistant. How can I help you today?",
+      placeholderText: "Type your message here...",
+      position: "right",
+      height: "600px",
+      width: "400px",
+      enableAudioRecording: true
     });
   };
 
