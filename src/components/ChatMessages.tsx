@@ -37,7 +37,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         {isLoading && (
           <div className="flex">
             <div 
-              className="inline-flex rounded-lg p-3 max-w-[80%] bg-gray-200"
+              className="inline-flex rounded-2xl p-3 max-w-[80%] bg-gray-200"
             >
               <div className="flex space-x-1">
                 <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>

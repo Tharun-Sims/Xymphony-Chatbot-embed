@@ -16,6 +16,16 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>("");
 
+  // Debug: Log config on mount to verify headers are received
+  useEffect(() => {
+    console.log('⚙️ Chatbot Config:', {
+      apiHost: config.apiHost,
+      hasHeaders: !!config.headers,
+      headerKeys: config.headers ? Object.keys(config.headers) : [],
+      headerValues: config.headers ? Object.entries(config.headers).map(([k, v]) => [k, v ? '***' + String(v).slice(-4) : 'empty']) : []
+    });
+  }, [config]);
+
   // Helper function to build headers dynamically
   const buildHeaders = (): Headers => {
     const headers = new Headers();
@@ -23,7 +33,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
     // Use dynamic headers if provided
     if (config.headers && typeof config.headers === 'object') {
       Object.entries(config.headers).forEach(([key, value]) => {
-        if (value) {
+        if (value && typeof value === 'string') {
           headers.append(key, value);
         }
       });
@@ -37,13 +47,17 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
       headers.append('X-XAI-USER', config.userEmail);
     }
     
-    // Debug: Log headers being sent (remove in production if needed)
-    if (config.headers || config.apiKey || config.userEmail) {
-      const headerKeys = config.headers ? Object.keys(config.headers) : [];
-      const legacyKeys = [];
-      if (config.apiKey) legacyKeys.push('X-API-KEY');
-      if (config.userEmail) legacyKeys.push('X-XAI-USER');
-      console.log('Chatbot Headers:', [...headerKeys, ...legacyKeys]);
+    // Debug: Log headers being sent
+    const headerEntries: string[] = [];
+    headers.forEach((value, key) => {
+      headerEntries.push(`${key}: ${value.substring(0, 4)}***`);
+    });
+    
+    if (headerEntries.length > 0) {
+      console.log('🔑 Chatbot Headers being sent:', Array.from(headers.keys()));
+      console.log('📋 Headers (masked):', headerEntries);
+    } else {
+      console.warn('⚠️ No headers configured!');
     }
     
     return headers;
@@ -114,12 +128,25 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
 
       // Build headers with authentication
       const headers = buildHeaders();
-
+      
+      // Debug: Verify headers before sending
+      const headerKeys = Array.from(headers.keys());
+      console.log('🚀 Sending request to:', config.apiHost);
+      console.log('📤 Headers count:', headerKeys.length);
+      console.log('📤 Header keys:', headerKeys);
+      console.log('📦 FormData keys:', Array.from(formData.keys()));
+      
+      // Important: When using FormData, don't set Content-Type manually
+      // Browser will set it automatically with boundary
+      // Headers object will be passed directly to fetch
       const response = await fetch(`${config.apiHost}`, {
         method: "POST",
-        headers: headers,
+        headers: headers, // Headers object is passed directly
         body: formData
       });
+      
+      console.log('📥 Response status:', response.status);
+      console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
 
       const data = await response.json();
 
@@ -175,6 +202,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
     try {
       // Build headers with authentication
       const headers = buildHeaders();
+      
+      console.log('📤 File upload - Headers:', Array.from(headers.keys()));
 
       const response = await fetch(`${config.apiHost}/upload`, {
         method: 'POST',
@@ -234,6 +263,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
     try {
       // Build headers with authentication
       const headers = buildHeaders();
+      
+      console.log('📤 Audio upload - Headers:', Array.from(headers.keys()));
 
       const response = await fetch(`${config.apiHost}/upload-audio`, {
         method: 'POST',
@@ -287,7 +318,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
     <div style={positionStyles} className="flex flex-col">
       {isOpen ? (
         <div
-          className="flex flex-col bg-white rounded-lg shadow-xl overflow-hidden"
+          className="flex flex-col bg-white rounded-2xl shadow-xl overflow-hidden"
           style={{
             width: config.width,
             height: config.height,

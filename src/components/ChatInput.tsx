@@ -92,16 +92,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
           {uploadedFiles.map((file, index) => (
             <div 
               key={index}
-              className="flex items-center gap-2 bg-gray-100 rounded-lg p-2"
+              className="flex items-center gap-2 bg-gray-100 rounded-xl p-2"
             >
               {file.type.startsWith('image/') ? (
                 <img 
                   src={URL.createObjectURL(file)} 
                   alt="Preview" 
-                  className="w-8 h-8 object-cover rounded"
+                  className="w-8 h-8 object-cover rounded-xl"
                 />
               ) : (
-                <div className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded">
+                <div className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-xl">
                   <Paperclip size={16} />
                 </div>
               )}
@@ -118,7 +118,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         </div>
       )}
 
-      <div className="flex items-center rounded-lg border border-gray-300 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-opacity-40" 
+      <div className="flex items-center rounded-xl border border-gray-300 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-opacity-40" 
            style={{ backgroundColor: 'white', boxShadow: 'none' }}>
         <textarea
           value={message}
@@ -173,7 +173,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         <button
           type="submit"
           disabled={(!message.trim() && uploadedFiles.length === 0) || disabled}
-          className="p-2 rounded-r-lg focus:outline-none transition-opacity disabled:opacity-50"
+          className="p-2 rounded-r-xl focus:outline-none transition-opacity disabled:opacity-50"
           style={{ 
             color: (message.trim() || uploadedFiles.length > 0) && !disabled ? primaryColor : '#9CA3AF'
           }}

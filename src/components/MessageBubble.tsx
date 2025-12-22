@@ -44,7 +44,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, primaryColor = '
                 
                 if (!inline && match) {
                   return (
-                    <div className="relative w-full bg-gray-800 rounded-lg group">
+                    <div className="relative w-full bg-gray-800 rounded-xl group">
                       <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => copyToClipboard(code, 0)}
@@ -96,7 +96,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, primaryColor = '
           <img 
             src={URL.createObjectURL(file.file)} 
             alt={file.name} 
-            className="max-w-full rounded"
+            className="max-w-full rounded-xl"
             style={{ maxHeight: '200px' }}
           />
         ) : (
@@ -121,7 +121,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, primaryColor = '
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div 
-        className={`inline-block rounded-lg p-3 max-w-[80%] ${
+        className={`inline-block rounded-2xl p-3 max-w-[80%] ${
           isUser 
             ? 'bg-gray-200 text-gray-800' 
             : 'text-white'
