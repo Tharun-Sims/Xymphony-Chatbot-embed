@@ -1,5 +1,7 @@
 export interface ChatbotConfig {
   apiHost: string;
+  apiKey?: string;
+  userEmail?: string;
   position?: "left" | "right";
   primaryColor?: string;
   textColor?: string;
@@ -13,6 +15,8 @@ export interface ChatbotConfig {
   height?: string;
   width?: string;
   enableAudioRecording?: boolean;
+  maxFileSize?: number;
+  allowedFileTypes?: string[];
 }
 
 export interface Message {

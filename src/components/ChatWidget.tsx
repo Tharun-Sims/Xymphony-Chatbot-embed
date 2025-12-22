@@ -14,6 +14,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string>("");
 
   useEffect(() => {
     // Add welcome message when chat is first opened
@@ -27,6 +28,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
           timestamp: new Date(),
         },
       ]);
+      // Reset session when opening a fresh chat
+      setSessionId("");
     }
   }, [isOpen, messages.length, config.welcomeMessage]);
 
@@ -58,10 +61,12 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
       const formData = new FormData();
       
       // Structure agent_data as JSON
+      const isNewSession = messages.length === 0 || !sessionId;
       const agentData = {
         query: content,
-        stream: false,
-        new_session: messages.length === 0 // true for first message, false otherwise
+        stream: true,
+        new_session: isNewSession,
+        session_id: sessionId || ""
       };
       formData.append('agent_data', JSON.stringify(agentData));
       
@@ -74,12 +79,27 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
         }
       });
 
+      // Build headers
+      const headers: HeadersInit = {};
+      if (config.apiKey) {
+        headers['X-API-KEY'] = config.apiKey;
+      }
+      if (config.userEmail) {
+        headers['X-XAI-USER'] = config.userEmail;
+      }
+
       const response = await fetch(`${config.apiHost}`, {
         method: "POST",
+        headers: headers,
         body: formData
       });
 
       const data = await response.json();
+
+      // Store session_id from response if provided
+      if (data.session_id) {
+        setSessionId(data.session_id);
+      }
 
       // Add assistant message
       const assistantMessage: Message = {
@@ -126,12 +146,27 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
     setIsLoading(true);
 
     try {
+      // Build headers
+      const headers: HeadersInit = {};
+      if (config.apiKey) {
+        headers['X-API-KEY'] = config.apiKey;
+      }
+      if (config.userEmail) {
+        headers['X-XAI-USER'] = config.userEmail;
+      }
+
       const response = await fetch(`${config.apiHost}/upload`, {
         method: 'POST',
+        headers: headers,
         body: formData
       });
 
       const data = await response.json();
+      
+      // Store session_id from response if provided
+      if (data.session_id) {
+        setSessionId(data.session_id);
+      }
       
       const assistantMessage: Message = {
         id: uuidv4(),
@@ -144,7 +179,17 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending file:', error);
-      // ... error handling ...
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: uuidv4(),
+        content: "Sorry, something went wrong while uploading the file. Please try again later.",
+        contentType: 'text',
+        role: "assistant",
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -166,16 +211,31 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
     setIsLoading(true);
 
     try {
+      // Build headers
+      const headers: HeadersInit = {};
+      if (config.apiKey) {
+        headers['X-API-KEY'] = config.apiKey;
+      }
+      if (config.userEmail) {
+        headers['X-XAI-USER'] = config.userEmail;
+      }
+
       const response = await fetch(`${config.apiHost}/upload-audio`, {
         method: 'POST',
+        headers: headers,
         body: formData
       });
 
       const data = await response.json();
       
+      // Store session_id from response if provided
+      if (data.session_id) {
+        setSessionId(data.session_id);
+      }
+      
       const assistantMessage: Message = {
         id: uuidv4(),
-        content: data.response,
+        content: data.response || "I've received your audio message.",
         contentType: 'text',
         role: 'assistant',
         timestamp: new Date()
@@ -184,7 +244,17 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending audio:', error);
-      // ... error handling ...
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: uuidv4(),
+        content: "Sorry, something went wrong while sending the audio. Please try again later.",
+        contentType: 'text',
+        role: "assistant",
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
