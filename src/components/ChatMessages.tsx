@@ -24,8 +24,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
   }, [messages]);
 
   return (
-    <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
-      <div className="space-y-4">
+    <div className="flex-1 p-3 overflow-y-auto bg-gray-50">
+      <div className="space-y-3">
         {messages.map((message) => (
           <MessageBubble 
             key={message.id}
@@ -37,7 +37,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         {isLoading && (
           <div className="flex">
             <div 
-              className="inline-flex rounded-2xl p-3 max-w-[80%] bg-gray-200"
+              className="inline-flex rounded-2xl p-2.5 max-w-[80%] bg-gray-200"
+              style={{ borderRadius: '1rem' }}
             >
               <div className="flex space-x-1">
                 <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>

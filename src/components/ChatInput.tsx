@@ -85,7 +85,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   return (
     <form 
       onSubmit={handleSubmit} 
-      className="border-t border-gray-200 p-3 bg-white"
+      className="border-t border-gray-200 p-2.5 bg-white"
     >
       {uploadedFiles.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-2">
@@ -93,15 +93,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <div 
               key={index}
               className="flex items-center gap-2 bg-gray-100 rounded-xl p-2"
+              style={{ borderRadius: '0.75rem' }}
             >
               {file.type.startsWith('image/') ? (
                 <img 
                   src={URL.createObjectURL(file)} 
                   alt="Preview" 
                   className="w-8 h-8 object-cover rounded-xl"
+                  style={{ borderRadius: '0.75rem' }}
                 />
               ) : (
-                <div className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-xl">
+                <div className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-xl" style={{ borderRadius: '0.75rem' }}>
                   <Paperclip size={16} />
                 </div>
               )}
@@ -119,7 +121,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       )}
 
       <div className="flex items-center rounded-xl border border-gray-300 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-opacity-40" 
-           style={{ backgroundColor: 'white', boxShadow: 'none' }}>
+           style={{ backgroundColor: 'white', boxShadow: 'none', borderRadius: '0.75rem' }}>
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -175,7 +177,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
           disabled={(!message.trim() && uploadedFiles.length === 0) || disabled}
           className="p-2 rounded-r-xl focus:outline-none transition-opacity disabled:opacity-50"
           style={{ 
-            color: (message.trim() || uploadedFiles.length > 0) && !disabled ? primaryColor : '#9CA3AF'
+            color: (message.trim() || uploadedFiles.length > 0) && !disabled ? primaryColor : '#9CA3AF',
+            borderTopRightRadius: '0.75rem', 
+            borderBottomRightRadius: '0.75rem'
           }}
         >
           <Send size={18} />

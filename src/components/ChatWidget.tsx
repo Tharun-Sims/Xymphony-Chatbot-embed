@@ -18,12 +18,16 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
 
   // Debug: Log config on mount to verify headers are received
   useEffect(() => {
-    console.log('⚙️ Chatbot Config:', {
-      apiHost: config.apiHost,
-      hasHeaders: !!config.headers,
-      headerKeys: config.headers ? Object.keys(config.headers) : [],
-      headerValues: config.headers ? Object.entries(config.headers).map(([k, v]) => [k, v ? '***' + String(v).slice(-4) : 'empty']) : []
-    });
+    try {
+      console.log('⚙️ Chatbot Config:', {
+        apiHost: config.apiHost,
+        hasHeaders: !!config.headers,
+        headerKeys: config.headers ? Object.keys(config.headers) : [],
+        headerValues: config.headers ? Object.entries(config.headers).map(([k, v]) => [k, v ? '***' + String(v).slice(-4) : 'empty']) : []
+      });
+    } catch (e) {
+      // Silently fail if console is not available
+    }
   }, [config]);
 
   // Helper function to build headers dynamically
@@ -53,11 +57,15 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
       headerEntries.push(`${key}: ${value.substring(0, 4)}***`);
     });
     
-    if (headerEntries.length > 0) {
-      console.log('🔑 Chatbot Headers being sent:', Array.from(headers.keys()));
-      console.log('📋 Headers (masked):', headerEntries);
-    } else {
-      console.warn('⚠️ No headers configured!');
+    try {
+      if (headerEntries.length > 0) {
+        console.log('🔑 Chatbot Headers being sent:', Array.from(headers.keys()));
+        console.log('📋 Headers (masked):', headerEntries);
+      } else {
+        console.warn('⚠️ No headers configured!');
+      }
+    } catch (e) {
+      // Silently fail if console is not available
     }
     
     return headers;
@@ -130,11 +138,15 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
       const headers = buildHeaders();
       
       // Debug: Verify headers before sending
-      const headerKeys = Array.from(headers.keys());
-      console.log('🚀 Sending request to:', config.apiHost);
-      console.log('📤 Headers count:', headerKeys.length);
-      console.log('📤 Header keys:', headerKeys);
-      console.log('📦 FormData keys:', Array.from(formData.keys()));
+      try {
+        const headerKeys = Array.from(headers.keys());
+        console.log('🚀 Sending request to:', config.apiHost);
+        console.log('📤 Headers count:', headerKeys.length);
+        console.log('📤 Header keys:', headerKeys);
+        console.log('📦 FormData keys:', Array.from(formData.keys()));
+      } catch (e) {
+        // Silently fail if console is not available
+      }
       
       // Important: When using FormData, don't set Content-Type manually
       // Browser will set it automatically with boundary
@@ -324,6 +336,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
             height: config.height,
             maxHeight: "80vh",
             maxWidth: "90vw",
+            borderRadius: '1rem' // Explicit border radius for Shadow DOM compatibility
           }}
         >
           <ChatHeader

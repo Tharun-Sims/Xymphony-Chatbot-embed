@@ -35,7 +35,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, primaryColor = '
   const renderContent = () => {
     if (message.contentType === 'text' && typeof message.content === 'string') {
       return (
-        <div className="prose prose-invert w-full">
+        <div className="prose prose-invert prose-sm w-full max-w-none">
           <ReactMarkdown
             components={{
               code({ node, inline, className, children, ...props }: CodeProps) {
@@ -44,7 +44,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, primaryColor = '
                 
                 if (!inline && match) {
                   return (
-                    <div className="relative w-full bg-gray-800 rounded-xl group">
+                    <div className="relative w-full bg-gray-800 rounded-xl group" style={{ borderRadius: '0.75rem' }}>
                       <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => copyToClipboard(code, 0)}
@@ -97,7 +97,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, primaryColor = '
             src={URL.createObjectURL(file.file)} 
             alt={file.name} 
             className="max-w-full rounded-xl"
-            style={{ maxHeight: '200px' }}
+            style={{ maxHeight: '200px', borderRadius: '0.75rem' }}
           />
         ) : (
           <div className="flex items-center gap-2">
@@ -109,9 +109,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, primaryColor = '
     ));
 
     return (
-      <div className="space-y-2">
+      <div className="space-y-2 text-sm">
         {message.contentType === 'text' && typeof message.content === 'string' && (
-          <div className="whitespace-pre-wrap break-words">{message.content}</div>
+          <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">{message.content}</div>
         )}
         {fileContent}
       </div>
@@ -121,14 +121,15 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, primaryColor = '
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div 
-        className={`inline-block rounded-2xl p-3 max-w-[80%] ${
+        className={`inline-block rounded-2xl p-2.5 max-w-[80%] text-sm ${
           isUser 
             ? 'bg-gray-200 text-gray-800' 
             : 'text-white'
         }`}
         style={{
           backgroundColor: isUser ? '#E5E7EB' : primaryColor,
-          color: isUser ? '#1F2937' : '#FFFFFF'
+          color: isUser ? '#1F2937' : '#FFFFFF',
+          borderRadius: '1rem' // Explicit border radius for Shadow DOM compatibility
         }}
       >
         {renderContent()}

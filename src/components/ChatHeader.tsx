@@ -21,7 +21,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 }) => {
   return (
     <div 
-      className="flex items-center justify-between p-4"
+      className="flex items-center justify-between p-3"
       style={{ backgroundColor: primaryColor, color: textColor }}
     >
       <div className="flex items-center">
@@ -40,7 +40,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           </div>
         )}
         <div>
-          <h3 className="font-medium">{title}</h3>
+          <h3 className="font-medium text-sm">{title}</h3>
           {subtitle && <p className="text-xs opacity-90">{subtitle}</p>}
         </div>
       </div>
