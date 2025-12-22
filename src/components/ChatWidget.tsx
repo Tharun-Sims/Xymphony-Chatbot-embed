@@ -16,6 +16,39 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>("");
 
+  // Helper function to build headers dynamically
+  const buildHeaders = (): Headers => {
+    const headers = new Headers();
+    
+    // Use dynamic headers if provided
+    if (config.headers && typeof config.headers === 'object') {
+      Object.entries(config.headers).forEach(([key, value]) => {
+        if (value) {
+          headers.append(key, value);
+        }
+      });
+    }
+    
+    // Legacy support: backward compatibility with apiKey and userEmail
+    if (config.apiKey) {
+      headers.append('X-API-KEY', config.apiKey);
+    }
+    if (config.userEmail) {
+      headers.append('X-XAI-USER', config.userEmail);
+    }
+    
+    // Debug: Log headers being sent (remove in production if needed)
+    if (config.headers || config.apiKey || config.userEmail) {
+      const headerKeys = config.headers ? Object.keys(config.headers) : [];
+      const legacyKeys = [];
+      if (config.apiKey) legacyKeys.push('X-API-KEY');
+      if (config.userEmail) legacyKeys.push('X-XAI-USER');
+      console.log('Chatbot Headers:', [...headerKeys, ...legacyKeys]);
+    }
+    
+    return headers;
+  };
+
   useEffect(() => {
     // Add welcome message when chat is first opened
     if (isOpen && messages.length === 0 && config.welcomeMessage) {
@@ -79,14 +112,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
         }
       });
 
-      // Build headers
-      const headers: HeadersInit = {};
-      if (config.apiKey) {
-        headers['X-API-KEY'] = config.apiKey;
-      }
-      if (config.userEmail) {
-        headers['X-XAI-USER'] = config.userEmail;
-      }
+      // Build headers with authentication
+      const headers = buildHeaders();
 
       const response = await fetch(`${config.apiHost}`, {
         method: "POST",
@@ -146,14 +173,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
     setIsLoading(true);
 
     try {
-      // Build headers
-      const headers: HeadersInit = {};
-      if (config.apiKey) {
-        headers['X-API-KEY'] = config.apiKey;
-      }
-      if (config.userEmail) {
-        headers['X-XAI-USER'] = config.userEmail;
-      }
+      // Build headers with authentication
+      const headers = buildHeaders();
 
       const response = await fetch(`${config.apiHost}/upload`, {
         method: 'POST',
@@ -211,14 +232,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
     setIsLoading(true);
 
     try {
-      // Build headers
-      const headers: HeadersInit = {};
-      if (config.apiKey) {
-        headers['X-API-KEY'] = config.apiKey;
-      }
-      if (config.userEmail) {
-        headers['X-XAI-USER'] = config.userEmail;
-      }
+      // Build headers with authentication
+      const headers = buildHeaders();
 
       const response = await fetch(`${config.apiHost}/upload-audio`, {
         method: 'POST',

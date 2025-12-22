@@ -1,5 +1,8 @@
 export interface ChatbotConfig {
   apiHost: string;
+  // Dynamic headers - pass any custom headers as key-value pairs
+  headers?: Record<string, string>;
+  // Legacy support (deprecated - use headers instead)
   apiKey?: string;
   userEmail?: string;
   position?: "left" | "right";
