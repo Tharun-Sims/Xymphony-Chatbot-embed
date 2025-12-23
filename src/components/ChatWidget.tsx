@@ -113,70 +113,122 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
     setIsLoading(true);
 
     try {
-      const formData = new FormData();
-      
-      // Structure agent_data as JSON
-      const isNewSession = messages.length === 0 || !sessionId;
-      const agentData = {
-        query: content,
-        stream: true,
-        new_session: isNewSession,
-        session_id: sessionId || ""
-      };
-      formData.append('agent_data', JSON.stringify(agentData));
-      
-      // Separate images and PDFs
-      files.forEach(file => {
-        if (file.type.startsWith('image/')) {
-          formData.append('images', file);
-        } else {
-          formData.append('pdfs', file);
-        }
-      });
-
-      // Build headers with authentication
       const headers = buildHeaders();
-      
-      // Debug: Verify headers before sending
-      try {
-        const headerKeys = Array.from(headers.keys());
-        console.log('🚀 Sending request to:', config.apiHost);
-        console.log('📤 Headers count:', headerKeys.length);
-        console.log('📤 Header keys:', headerKeys);
-        console.log('📦 FormData keys:', Array.from(formData.keys()));
-      } catch (e) {
-        // Silently fail if console is not available
+      let response: Response;
+      let data: any;
+
+      // Auto-detect request format: Use JSON if no files, FormData if files present
+      if (files.length === 0) {
+        // Simple text query - use JSON format (Java backend compatible)
+        const requestBody = {
+          question: content
+        };
+
+        try {
+          const headerKeys = Array.from(headers.keys());
+          console.log('🚀 Sending JSON request to:', config.apiHost);
+          console.log('📤 Headers count:', headerKeys.length);
+          console.log('📤 Header keys:', headerKeys);
+        } catch (e) {
+          // Silently fail if console is not available
+        }
+
+        response = await fetch(`${config.apiHost}`, {
+          method: "POST",
+          headers: {
+            ...Object.fromEntries(headers.entries()),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+      } else {
+        // Files present - use FormData format (Xymphony backend)
+        const formData = new FormData();
+        
+        // Structure agent_data as JSON
+        const isNewSession = messages.length === 0 || !sessionId;
+        const agentData = {
+          query: content,
+          stream: true,
+          new_session: isNewSession,
+          session_id: sessionId || ""
+        };
+        formData.append('agent_data', JSON.stringify(agentData));
+        
+        // Separate images and PDFs
+        files.forEach(file => {
+          if (file.type.startsWith('image/')) {
+            formData.append('images', file);
+          } else {
+            formData.append('pdfs', file);
+          }
+        });
+
+        try {
+          const headerKeys = Array.from(headers.keys());
+          console.log('🚀 Sending FormData request to:', config.apiHost);
+          console.log('📤 Headers count:', headerKeys.length);
+          console.log('📤 Header keys:', headerKeys);
+          console.log('📦 FormData keys:', Array.from(formData.keys()));
+        } catch (e) {
+          // Silently fail if console is not available
+        }
+        
+        response = await fetch(`${config.apiHost}`, {
+          method: "POST",
+          headers: headers,
+          body: formData
+        });
       }
-      
-      // Important: When using FormData, don't set Content-Type manually
-      // Browser will set it automatically with boundary
-      // Headers object will be passed directly to fetch
-      const response = await fetch(`${config.apiHost}`, {
-        method: "POST",
-        headers: headers, // Headers object is passed directly
-        body: formData
-      });
-      
-      console.log('📥 Response status:', response.status);
-      console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      }
 
-      // Store session_id from response if provided
+      data = await response.json();
+
+      // Store session_id from response if provided (Xymphony format)
       if (data.session_id) {
         setSessionId(data.session_id);
+      }
+
+      // Intelligent response parsing - handles both formats
+      let responseContent = "Sorry, I couldn't process your request.";
+      
+      // Try Java backend format first (data.data.content)
+      if (data?.status === 'SUCCESS' && data?.data?.content) {
+        responseContent = data.data.content;
+      } else if (data?.data?.content) {
+        responseContent = data.data.content;
+      } 
+      // Try Xymphony format (data.response)
+      else if (data?.response) {
+        responseContent = data.response;
+      }
+      // Fallback formats
+      else if (data?.content) {
+        responseContent = data.content;
+      } else if (data?.message) {
+        responseContent = data.message;
       }
 
       // Add assistant message
       const assistantMessage: Message = {
         id: uuidv4(),
-        content: data.response || "Sorry, I couldn't process your request.",
+        content: responseContent,
         contentType: 'text',
         role: "assistant",
         timestamp: new Date()
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+
+      try {
+        console.log('📥 Response status:', response.status);
+        console.log('📥 Response data:', data);
+      } catch (e) {
+        // Silently fail if console is not available
+      }
     } catch (error) {
       console.error("Error sending message:", error);
 
