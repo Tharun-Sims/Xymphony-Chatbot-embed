@@ -117,69 +117,35 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
       let response: Response;
       let data: any;
 
-      // Auto-detect request format: Use JSON if no files, FormData if files present
-      if (files.length === 0) {
-        // Simple text query - use JSON format (Java backend compatible)
-        const requestBody = {
-          question: content
-        };
-
-        try {
-          const headerKeys = Array.from(headers.keys());
-          console.log('🚀 Sending JSON request to:', config.apiHost);
-          console.log('📤 Headers count:', headerKeys.length);
-          console.log('📤 Header keys:', headerKeys);
-        } catch (e) {
-          // Silently fail if console is not available
+      // Use FormData with 'question' as request parameter (Java backend format)
+      const formData = new FormData();
+      formData.append('question', content);
+      
+      // Add files if present
+      files.forEach(file => {
+        if (file.type.startsWith('image/')) {
+          formData.append('images', file);
+        } else {
+          formData.append('pdfs', file);
         }
+      });
 
-        response = await fetch(`${config.apiHost}`, {
-          method: "POST",
-          headers: {
-            ...Object.fromEntries(headers.entries()),
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(requestBody)
-        });
-      } else {
-        // Files present - use FormData format (Xymphony backend)
-        const formData = new FormData();
-        
-        // Structure agent_data as JSON
-        const isNewSession = messages.length === 0 || !sessionId;
-        const agentData = {
-          query: content,
-          stream: true,
-          new_session: isNewSession,
-          session_id: sessionId || ""
-        };
-        formData.append('agent_data', JSON.stringify(agentData));
-        
-        // Separate images and PDFs
-        files.forEach(file => {
-          if (file.type.startsWith('image/')) {
-            formData.append('images', file);
-          } else {
-            formData.append('pdfs', file);
-          }
-        });
-
-        try {
-          const headerKeys = Array.from(headers.keys());
-          console.log('🚀 Sending FormData request to:', config.apiHost);
-          console.log('📤 Headers count:', headerKeys.length);
-          console.log('📤 Header keys:', headerKeys);
-          console.log('📦 FormData keys:', Array.from(formData.keys()));
-        } catch (e) {
-          // Silently fail if console is not available
-        }
-        
-        response = await fetch(`${config.apiHost}`, {
-          method: "POST",
-          headers: headers,
-          body: formData
-        });
+      try {
+        const headerKeys = Array.from(headers.keys());
+        console.log('🚀 Sending request to:', config.apiHost);
+        console.log('📤 Headers count:', headerKeys.length);
+        console.log('📤 Header keys:', headerKeys);
+        console.log('📦 FormData keys:', Array.from(formData.keys()));
+        console.log('📝 Question param:', content);
+      } catch (e) {
+        // Silently fail if console is not available
       }
+      
+      response = await fetch(`${config.apiHost}`, {
+        method: "POST",
+        headers: headers,
+        body: formData
+      });
 
       if (!response.ok) {
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
