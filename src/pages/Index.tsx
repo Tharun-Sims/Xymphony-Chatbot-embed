@@ -69,6 +69,22 @@ const Index = () => {
     // Required: Your backend API endpoint
     apiHost: "http://{YOUR-API-HOST}/quote/regulatory",
     
+    // Optional: Embed mode - 'floating' (default) or 'panel' (embedded panel)
+    embedMode: "floating",  // 'floating' = floating bubble widget, 'panel' = embedded panel
+    
+    // For panel mode: container element ID or HTMLElement where chatbot should be embedded
+    containerId: "chatbot-panel",  // Optional: ID of container element (if not provided, overlays on body)
+    // container: document.getElementById('chatbot-panel'),  // Alternative: pass HTMLElement directly
+    
+    // For panel mode: width as percentage or CSS value (default: "30%")
+    panelWidth: "30%",
+    
+    // For panel mode: position on screen ("left" | "right", default: "right") - only used if no container specified
+    panelPosition: "right",
+    
+    // For floating mode: position of the bubble
+    position: "right",  // 'left' or 'right'
+    
     // Optional: Custom headers for authentication
     headers: {
         'API-KEY': 'your-api-key',
@@ -76,9 +92,6 @@ const Index = () => {
         'Authorization': 'Bearer token'
         // Add any custom headers here
     },
-    
-    // Optional: Position
-    position: "right",  // 'left' or 'right'
     
     // Optional: Colors
     primaryColor: "#11a8a5",
@@ -93,7 +106,7 @@ const Index = () => {
     placeholderText: "Type your message...",
     avatarUrl: "https://example.com/avatar.png",
     
-    // Optional: Size
+    // Optional: Size (for floating mode)
     height: "500px",
     width: "350px",
     
@@ -203,6 +216,102 @@ const Index = () => {
             </CardContent>
           </Card>
 
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Code className="mr-2 h-5 w-5" />
+                Panel Mode (Embedded in Layout)
+              </CardTitle>
+              <CardDescription>
+                Embed as a side panel integrated into your app layout (70% app + 30% chat)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-700 mb-2 font-semibold">1. HTML Structure:</p>
+                  <div className="relative">
+                    <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
+                      <code>{`<div style="display: flex; height: 100vh;">
+  <!-- Your main app content (70% width) -->
+  <div id="main-app" style="width: 70%; height: 100%;">
+    <!-- Your app content here -->
+  </div>
+  
+  <!-- Chatbot container (30% width) -->
+  <div id="chatbot-panel" style="width: 30%; height: 100%;"></div>
+</div>`}</code>
+                    </pre>
+                    <button
+                      onClick={() => copyToClipboard(`<div style="display: flex; height: 100vh;">
+  <div id="main-app" style="width: 70%; height: 100%;">
+    <!-- Your app content here -->
+  </div>
+  <div id="chatbot-panel" style="width: 30%; height: 100%;"></div>
+</div>`, 'html-structure')}
+                      className="absolute top-4 right-4 p-2 bg-gray-800 rounded hover:bg-gray-700 transition-colors"
+                      aria-label="Copy code"
+                    >
+                      {copiedCode === 'html-structure' ? (
+                        <Check size={16} className="text-green-400" />
+                      ) : (
+                        <Copy size={16} className="text-gray-300" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+                
+                <div>
+                  <p className="text-sm text-gray-700 mb-2 font-semibold">2. Initialize Chatbot:</p>
+                  <div className="relative">
+                    <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
+                      <code>{`Chatbot.init({
+    apiHost: "http://{YOUR-API-HOST}/quote/regulatory",
+    
+    // Enable panel mode and specify container
+    embedMode: "panel",
+    containerId: "chatbot-panel",  // ID of the container element
+    panelWidth: "100%",  // 100% of container width
+    
+    headers: {
+        'API-KEY': 'your-api-key',
+        'USER-EMAIL': 'user@example.com'
+    },
+    
+    primaryColor: "#11a8a5",
+    title: "Chat Assistant",
+    subtitle: "Powered by Xymphony"
+});`}</code>
+                    </pre>
+                    <button
+                      onClick={() => copyToClipboard(`Chatbot.init({
+    apiHost: "http://{YOUR-API-HOST}/quote/regulatory",
+    embedMode: "panel",
+    containerId: "chatbot-panel",
+    panelWidth: "100%",
+    headers: {
+        'API-KEY': 'your-api-key',
+        'USER-EMAIL': 'user@example.com'
+    },
+    primaryColor: "#11a8a5",
+    title: "Chat Assistant",
+    subtitle: "Powered by Xymphony"
+});`, 'panel')}
+                      className="absolute top-4 right-4 p-2 bg-gray-800 rounded hover:bg-gray-700 transition-colors"
+                      aria-label="Copy code"
+                    >
+                      {copiedCode === 'panel' ? (
+                        <Check size={16} className="text-green-400" />
+                      ) : (
+                        <Copy size={16} className="text-gray-300" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Full Configuration Example</CardTitle>
@@ -274,6 +383,11 @@ const Index = () => {
                 description: "Works perfectly on desktop, tablet, and mobile devices",
                 icon: Globe,
               },
+              {
+                title: "Flexible Embed Modes",
+                description: "Choose between floating bubble widget or embedded panel (30% width, full height)",
+                icon: Palette,
+              },
             ].map((feature) => (
               <Card key={feature.title} className="flex flex-col">
                 <CardHeader>
@@ -325,10 +439,40 @@ const Index = () => {
                       <td className="p-3">Optional. Custom headers (e.g., API-KEY, USER-EMAIL)</td>
                     </tr>
                     <tr className="border-b">
+                      <td className="p-3 font-mono text-xs bg-gray-50">embedMode</td>
+                      <td className="p-3">'floating' | 'panel'</td>
+                      <td className="p-3 text-gray-500">'floating'</td>
+                      <td className="p-3">Embed mode: 'floating' = floating bubble widget, 'panel' = embedded panel</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-3 font-mono text-xs bg-gray-50">containerId</td>
+                      <td className="p-3">string</td>
+                      <td className="p-3 text-gray-500">-</td>
+                      <td className="p-3">For panel mode: ID of container element to embed into (if not provided, overlays on body)</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-3 font-mono text-xs bg-gray-50">container</td>
+                      <td className="p-3">HTMLElement</td>
+                      <td className="p-3 text-gray-500">-</td>
+                      <td className="p-3">For panel mode: HTMLElement where chatbot should be embedded (alternative to containerId)</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-3 font-mono text-xs bg-gray-50">panelWidth</td>
+                      <td className="p-3">string</td>
+                      <td className="p-3 text-gray-500">'30%'</td>
+                      <td className="p-3">For panel mode: width as percentage or CSS value (use '100%' when using containerId)</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-3 font-mono text-xs bg-gray-50">panelPosition</td>
+                      <td className="p-3">'left' | 'right'</td>
+                      <td className="p-3 text-gray-500">'right'</td>
+                      <td className="p-3">For panel mode: position on screen (only used if no container specified)</td>
+                    </tr>
+                    <tr className="border-b">
                       <td className="p-3 font-mono text-xs bg-gray-50">position</td>
                       <td className="p-3">'left' | 'right'</td>
                       <td className="p-3 text-gray-500">'right'</td>
-                      <td className="p-3">Widget position on screen</td>
+                      <td className="p-3">For floating mode: widget position on screen</td>
                     </tr>
                     <tr className="border-b">
                       <td className="p-3 font-mono text-xs bg-gray-50">primaryColor</td>

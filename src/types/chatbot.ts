@@ -5,6 +5,16 @@ export interface ChatbotConfig {
   // Legacy support (deprecated - use headers instead)
   apiKey?: string;
   userEmail?: string;
+  // Embed mode: 'floating' = floating bubble widget, 'panel' = embedded panel (30% width, full height)
+  embedMode?: "floating" | "panel";
+  // For panel mode: container element ID or HTMLElement where chatbot should be embedded (if not provided, appends to body)
+  containerId?: string;
+  container?: HTMLElement;
+  // For panel mode: width as percentage or CSS value (default: "30%")
+  panelWidth?: string;
+  // For panel mode: position on screen ("left" | "right", default: "right") - only used if no container specified
+  panelPosition?: "left" | "right";
+  // For floating mode: position of the bubble
   position?: "left" | "right";
   primaryColor?: string;
   textColor?: string;

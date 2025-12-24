@@ -336,26 +336,55 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
     }
   };
 
-  // Position styles based on config
-  const positionStyles = {
-    position: "fixed",
-    bottom: "20px",
-    [config.position === "left" ? "left" : "right"]: "20px",
-    zIndex: 9999,
-  } as React.CSSProperties;
+  const embedMode = config.embedMode || "floating";
+  const isPanelMode = embedMode === "panel";
+
+  // For panel mode, always show the chat (no bubble, no toggle)
+  useEffect(() => {
+    if (isPanelMode && !isOpen) {
+      setIsOpen(true);
+    }
+  }, [isPanelMode, isOpen]);
+
+  // Position styles based on embed mode
+  const containerStyles: React.CSSProperties = isPanelMode
+    ? {
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }
+    : {
+        position: "fixed",
+        bottom: "20px",
+        [config.position === "left" ? "left" : "right"]: "20px",
+        zIndex: 9999,
+      };
+
+  // Widget container styles
+  const widgetStyles: React.CSSProperties = isPanelMode
+    ? {
+        width: "100%",
+        height: "100%",
+        maxHeight: "100%",
+        maxWidth: "100%",
+        borderRadius: '0.5rem', // Slightly rounded for panel mode
+      }
+    : {
+        width: config.width,
+        height: config.height,
+        maxHeight: "80vh",
+        maxWidth: "90vw",
+        borderRadius: '1rem', // Explicit border radius for Shadow DOM compatibility
+      };
 
   return (
-    <div style={positionStyles} className="flex flex-col">
-      {isOpen ? (
+    <div style={containerStyles} className="flex flex-col">
+      {isOpen || isPanelMode ? (
         <div
           className="flex flex-col bg-white rounded-2xl shadow-xl overflow-hidden"
-          style={{
-            width: config.width,
-            height: config.height,
-            maxHeight: "80vh",
-            maxWidth: "90vw",
-            borderRadius: '1rem' // Explicit border radius for Shadow DOM compatibility
-          }}
+          style={widgetStyles}
         >
           <ChatHeader
             title={config.title || "Chat Assistant"}
@@ -363,7 +392,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
             avatarUrl={config.avatarUrl}
             primaryColor={config.primaryColor}
             textColor={config.textColor}
-            onClose={toggleChat}
+            onClose={isPanelMode ? undefined : toggleChat} // Hide close button in panel mode
           />
 
           <ChatMessages
@@ -383,11 +412,13 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
           />
         </div>
       ) : (
-        <ChatBubble
-          onClick={toggleChat}
-          color={config.bubbleColor}
-          textColor={config.bubbleTextColor}
-        />
+        !isPanelMode && (
+          <ChatBubble
+            onClick={toggleChat}
+            color={config.bubbleColor}
+            textColor={config.bubbleTextColor}
+          />
+        )
       )}
     </div>
   );

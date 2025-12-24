@@ -20,7 +20,10 @@ class Chatbot {
 
   public init(config: ChatbotConfig): void {
     this.config = {
+      embedMode: "floating",
       position: "right",
+      panelPosition: "right",
+      panelWidth: "30%",
       primaryColor: "#4F46E5",
       textColor: "#FFFFFF",
       bubbleColor: "#4F46E5",
@@ -34,13 +37,67 @@ class Chatbot {
       ...config,
     };
 
-    if (!this.container) {
-      this.container = document.createElement("div");
-      this.container.id = "chatbot-container";
-      document.body.appendChild(this.container);
+    const embedMode = this.config.embedMode || "floating";
+
+    // Check if user provided a container element or container ID
+    let userContainer: HTMLElement | null = null;
+    
+    if (this.config.container) {
+      userContainer = this.config.container;
+    } else if (this.config.containerId) {
+      userContainer = document.getElementById(this.config.containerId);
+      if (!userContainer) {
+        console.warn(`Container with ID "${this.config.containerId}" not found. Appending to body.`);
+      }
     }
-    // 🔒 Create Shadow DOM
-    const shadow = this.container.attachShadow({ mode: "open" });
+
+    // Determine the actual container to use
+    if (embedMode === "panel" && userContainer) {
+      // Panel mode with container: Use user's container directly (embedded in layout)
+      this.container = userContainer;
+      
+      // Ensure the user's container has proper styling for embedded mode
+      if (!this.container.shadowRoot) {
+        // Only set styles if shadow DOM doesn't exist yet
+        this.container.style.width = "100%";
+        this.container.style.height = "100%";
+        this.container.style.display = "flex";
+        this.container.style.flexDirection = "column";
+        this.container.style.position = "relative";
+        this.container.style.overflow = "hidden";
+      }
+    } else {
+      // Floating mode OR panel mode without container: Create our own container
+      if (!this.container) {
+        this.container = document.createElement("div");
+        this.container.id = "chatbot-container";
+        
+        if (embedMode === "panel") {
+          // Panel mode without container: overlay mode
+          this.container.style.position = "fixed";
+          this.container.style.top = "0";
+          this.container.style.bottom = "0";
+          this.container.style.width = this.config.panelWidth || "30%";
+          this.container.style[this.config.panelPosition === "left" ? "left" : "right"] = "0";
+          this.container.style.zIndex = "9999";
+          this.container.style.backgroundColor = "transparent";
+        } else {
+          // Floating mode
+          this.container.style.position = "relative";
+        }
+        
+        document.body.appendChild(this.container);
+      }
+    }
+    
+    // 🔒 Create Shadow DOM (attach to container, or use existing if already attached)
+    let shadow = this.container.shadowRoot;
+    if (!shadow) {
+      shadow = this.container.attachShadow({ mode: "open" });
+    } else {
+      // Clear existing content if re-initializing
+      shadow.innerHTML = "";
+    }
 
     // 🧵 Inject CSS
     const style = document.createElement("style");
@@ -49,6 +106,12 @@ class Chatbot {
 
     // 🪝 Create app mount point
     const mount = document.createElement("div");
+    if (embedMode === "panel") {
+      mount.style.width = "100%";
+      mount.style.height = "100%";
+      mount.style.display = "flex";
+      mount.style.flexDirection = "column";
+    }
     shadow.appendChild(mount);
 
     // 🚀 Render Chatbot

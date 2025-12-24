@@ -8,7 +8,7 @@ interface ChatHeaderProps {
   avatarUrl?: string;
   primaryColor?: string;
   textColor?: string;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
@@ -44,13 +44,15 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           {subtitle && <p className="text-xs opacity-90">{subtitle}</p>}
         </div>
       </div>
-      <button 
-        onClick={onClose}
-        className="rounded-full p-1 hover:bg-white/20 transition-colors"
-        aria-label="Close chat"
-      >
-        <X size={18} />
-      </button>
+      {onClose && (
+        <button 
+          onClick={onClose}
+          className="rounded-full p-1 hover:bg-white/20 transition-colors"
+          aria-label="Close chat"
+        >
+          <X size={18} />
+        </button>
+      )}
     </div>
   );
 };
