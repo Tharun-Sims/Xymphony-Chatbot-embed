@@ -171,6 +171,10 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ config }) => {
       else if (data?.response) {
         responseContent = data.response;
       }
+      // Try data field first (higher priority than message)
+      else if (data?.data) {
+        responseContent = data.data;
+      }
       // Fallback formats
       else if (data?.content) {
         responseContent = data.content;
